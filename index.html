@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AgentOS">
+<meta name="theme-color" content="#F5F5F2">
+<meta name="format-detection" content="telephone=no">
+<title>AgentOS</title>
+<link rel="manifest" id="mf">
+<link rel="apple-touch-icon" id="ic">
+<style>
+:root{--bg:#F5F5F2;--card:#fff;--ink:#16181A;--mut:#6B7075;--line:#E6E6E1;--ac:#0B7A75;--acs:#E1F1EF;--red:#C8402F;--amb:#B7791F;--sab:env(safe-area-inset-bottom,0px);--sat:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+#app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
+#main{flex:1;overflow-y:auto;padding:calc(var(--sat) + 14px) 18px 120px;-webkit-overflow-scrolling:touch}
+h1{font-size:34px;letter-spacing:-.03em;margin:6px 0 2px;font-weight:800}
+h2{font-size:13px;color:var(--mut);font-weight:600;margin:22px 0 8px 4px;letter-spacing:.01em}
+.sub{color:var(--mut);margin:0 0 10px}
+.card{background:var(--card);border-radius:18px;box-shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);overflow:hidden}
+.card.pad{padding:16px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 14px;min-height:56px;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+.grow{flex:1;min-width:0}.grow b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+small{color:var(--mut);font-size:13px}.red{color:var(--red)}.amb{color:var(--amb)}
+.chk{width:28px;height:28px;border-radius:50%;border:2px solid #C5C7C2;background:none;flex:none;padding:0}
+.chk.on{background:var(--ac);border-color:var(--ac);box-shadow:inset 0 0 0 5px #fff}
+.tag{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--acs);color:var(--ac);font-weight:600;flex:none;white-space:nowrap}
+.tag.appt{background:#EEE9FB;color:#5B3FB5}.tag.task{background:#EFEFEA;color:#555}.tag.red{background:#FBE9E6;color:var(--red)}
+.av{width:42px;height:42px;border-radius:50%;background:var(--acs);color:var(--ac);display:grid;place-items:center;font-weight:700;flex:none}
+.btn{appearance:none;border:0;background:var(--ac);color:#fff;font:600 16px inherit;font-family:inherit;min-height:50px;border-radius:14px;padding:0 20px;width:100%}
+.btn.sec{background:var(--acs);color:var(--ac)}.btn.ghost{background:#fff;color:var(--red);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.btn:active,.row:active{opacity:.7}.btn[disabled]{opacity:.5}
+.pills{display:flex;gap:8px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.pills::-webkit-scrollbar{display:none}
+.pill{appearance:none;border:0;background:#fff;color:var(--ink);font:500 14px inherit;font-family:inherit;padding:0 14px;min-height:38px;border-radius:99px;flex:none;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.pill.on{background:var(--ink);color:#fff}
+.seg{display:flex;background:#E9E9E4;border-radius:12px;padding:3px;margin:8px 0}
+.seg button{flex:1;border:0;background:none;min-height:36px;border-radius:10px;font:600 13px inherit;font-family:inherit;color:var(--mut)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+input,select,textarea{width:100%;font:16px inherit;font-family:inherit;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);margin-top:6px;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac)}
+label{display:block;font-size:13px;font-weight:600;color:var(--mut);margin:14px 0 0}
+.err{color:var(--red);font-size:13px;margin-top:4px;min-height:0}
+#tabs{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;display:flex;background:rgba(255,255,255,.88);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-top:1px solid var(--line);padding:6px 4px calc(var(--sab) + 4px);z-index:20}
+.tab{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font:600 11px inherit;font-family:inherit;color:#8A8F94;min-height:50px}
+.tab svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tab.on{color:var(--ac)}
+#fab{position:fixed;right:max(18px,calc(50% - 262px));bottom:calc(var(--sab) + 74px);width:58px;height:58px;border-radius:50%;border:0;background:var(--ac);color:#fff;font-size:32px;box-shadow:0 8px 22px rgba(11,122,117,.4);z-index:15}
+#sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:30}
+#sheet{position:fixed;inset:0;max-width:560px;margin:0 auto;background:var(--bg);padding:calc(var(--sat) + 8px) 20px calc(var(--sab) + 28px);transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:31;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.open #sheetbg{opacity:1;pointer-events:auto}.open #sheet{transform:none}
+.grab{width:40px;height:5px;border-radius:9px;background:#CFCFCA;margin:0 auto 12px}
+#toast{position:fixed;left:50%;top:calc(var(--sat) + 10px);transform:translate(-50%,-90px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:99px;font-weight:600;font-size:14px;transition:.3s;z-index:50;max-width:90%}
+#toast.show{transform:translate(-50%,0)}
+.back{display:inline-flex;align-items:center;border:0;background:var(--acs);color:var(--ac);font-family:inherit;font-weight:600;padding:0 20px 0 14px;min-height:48px;border-radius:99px;margin:4px 0 10px}
+.top{display:flex;justify-content:space-between;align-items:flex-start}
+.ico{border:0;background:#fff;color:var(--ac);border-radius:50%;width:54px;height:54px;font-size:26px;line-height:1;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.acts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.acts a{display:block;text-align:center;background:var(--acs);color:var(--ac);text-decoration:none;font-weight:600;padding:14px 0;border-radius:14px}
+.stat{display:flex;gap:10px}.stat .card{flex:1;padding:14px}.stat b{font-size:24px;letter-spacing:-.02em;display:block}
+.empty{text-align:center;color:var(--mut);padding:30px 20px}.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
+.stages{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.plan{border:2px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;background:#fff}.plan.pro{border-color:var(--ac)}
+.plan ul{margin:8px 0 0;padding-left:18px;color:var(--mut);font-size:14px}.plan h3{margin:0;font-size:20px}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-3px}@keyframes s{to{transform:rotate(360deg)}}
+/* one font size for every button */
+.btn,.pill,.seg button,.back,.tab,.acts a{font-size:16px}
+.pill{min-height:44px}.seg button{min-height:42px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><div id="main"></div></div>
+<button id="fab" data-a="quick" aria-label="Quick actions">+</button>
+<nav id="tabs"></nav>
+<input type="file" id="rf" accept=".json,application/json" hidden>
+<div id="toast"></div>
+<div id="sheetbg" data-a="closeSheet"></div><div id="sheet"></div>
+<script>
+/* ===== helpers & storage ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addD=(n,from)=>{const d=from?new Date(from+'T12:00'):new Date();d.setDate(d.getDate()+n);return dstr(d)};
+const today=()=>dstr(new Date());
+const uid=()=>Math.random().toString(36).slice(2,9);
+const money=n=>'$'+Math.round(n||0).toLocaleString('en-CA');
+const KEY='agentos.v1';let mem=null;
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}return mem}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){mem=JSON.parse(JSON.stringify(S))}}
+const CSTAGES=['New Lead','Active Buyer','Active Seller','Under Contract','Closed','Past Client'];
+const DSTAGES=['Lead','Showing','Offer','Under Contract','Conditional','Firm','Closed'];
+const LIMITS={clients:15,deals:2};
+
+function seed(){
+ const c=(name,phone,email,type,stage,budget,prefs,notes,next)=>({id:uid(),name,phone,email,type,stage,budget,prefs,notes,next,history:[]});
+ const cl=[c('Sarah Mitchell','416-555-0142','sarah.m@example.com','Buyer','Active Buyer','$850K','3 bed, Mississauga/Oakville, near GO','Pre-approved. Wants a yard.',addD(0)),
+ c('David & Priya Shah','905-555-0188','shahs@example.com','Buyer','Active Buyer','$1.1M','Detached, good schools','Relocating from Calgary.',addD(-2)),
+ c('Marcus Lee','647-555-0119','marcus.lee@example.com','Buyer','Under Contract','$620K','Condo downtown','First-time buyer.',addD(3)),
+ c('Elena Rossi','416-555-0177','elena.r@example.com','Seller','Active Seller','$1.35M','Listing in Etobicoke','Open house this weekend.',addD(1)),
+ c('Tom Becker','289-555-0163','tom.b@example.com','Buyer','New Lead','$700K','Townhouse','Came from website form.',addD(-1)),
+ c('Aisha Khan','647-555-0135','aisha.k@example.com','Seller','New Lead','','Thinking of selling in spring','Referral from Grace.',addD(0)),
+ c('Grace Wong','416-555-0101','grace.w@example.com','Buyer','Closed','$900K','','Closed last month. Ask for referrals.',addD(14)),
+ c('Robert Hall','905-555-0156','rob.h@example.com','Seller','Past Client','','','Sold 2023. Annual check-in.',addD(30))];
+ const [sa,da,ma,el,to,ai,gr,ro]=cl;
+ const dl=(client,address,value,pct,close,stage,notes,deadlines)=>({id:uid(),clientId:client.id,address,value,pct,close,stage,notes,deadlines:deadlines.map(([label,n])=>({id:uid(),label,date:addD(n)}))});
+ const deals=[dl(sa,'48 Maple Grove Dr, Oakville',865000,2.5,addD(40),'Showing','Seen 3 homes. Likes this one.',[['Book second showing',1]]),
+ dl(da,'12 Lakeshore Cres, Mississauga',1080000,2.5,addD(35),'Offer','Offer submitted at $1.07M.',[['Offer expires',0]]),
+ dl(ma,'905-88 Harbour St #1204, Toronto',615000,2.5,addD(21),'Conditional','Financing + inspection conditions.',[['Financing condition',2],['Inspection report',4]]),
+ dl(el,'231 Burnhamthorpe Rd, Etobicoke',1349000,2.25,addD(60),'Lead','Listing prep, photos booked.',[['Photographer',2]]),
+ dl(gr,'7 Birchmount Ave, Toronto',905000,2.5,addD(-20),'Closed','Closed. Send gift.',[])];
+ const t=(title,client,due,type,time,deal)=>({id:uid(),title,clientId:client?client.id:null,dealId:deal?deal.id:null,due,time:time||'',type,done:false,repeat:''});
+ const tasks=[t('Follow up on new listing alert',sa,addD(0),'followup'),t('Check in after offer',da,addD(-2),'followup'),t('Call Tom: website lead',to,addD(-1),'followup'),
+ t('Call Aisha about spring plans',ai,addD(0),'followup'),t('Showing: Maple Grove Dr',sa,addD(0),'appt','14:00',deals[0]),t('Listing appointment',el,addD(1),'appt','10:30',deals[3]),
+ t('Send financing docs to lender',ma,addD(2),'task','',deals[2]),t('Order sign for Etobicoke listing',el,addD(1),'task','',deals[3]),t('Quarterly check-in',ro,addD(30),'followup'),t('Request referral from Grace',gr,addD(14),'followup')];
+ const now=Date.now();
+ const act=[{id:uid(),ts:now-3600e3,type:'call',text:'Called Marcus Lee: Connected'},{id:uid(),ts:now-7200e3,type:'deal',text:'Marcus Lee deal moved to Conditional'},{id:uid(),ts:now-86400e3*2,type:'client',text:'Added Tom Becker'}];
+ [...cl,...deals,...tasks,...act].forEach(x=>x.sample=true);
+ return {v:2,plan:'pro',clients:cl,deals,tasks,activity:act,name:'Alex'};
+}
+let S=load()||seed();
+(function(){if(S.v>=2)return;const N=['Sarah Mitchell','David & Priya Shah','Marcus Lee','Elena Rossi','Tom Becker','Aisha Khan','Grace Wong','Robert Hall'];S.clients.forEach(c=>{if(N.includes(c.name))c.sample=true});const ci=new Set(S.clients.filter(c=>c.sample).map(c=>c.id));S.deals.forEach(d=>{if(ci.has(d.clientId))d.sample=true});const di=new Set(S.deals.filter(d=>d.sample).map(d=>d.id));S.tasks.forEach(t=>{if(ci.has(t.clientId)||di.has(t.dealId))t.sample=true});S.v=2})();
+save();
+let nav={tab:'today',stack:[],tf:'today',q:'',cf:'All',df:'Active',af:'week'};
+
+/* ===== lookups & formatting ===== */
+const cl=id=>S.clients.find(c=>c.id===id),deal=id=>S.deals.find(d=>d.id===id),task=id=>S.tasks.find(t=>t.id===id);
+const ini=n=>n.split(/[ &]+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const isPro=()=>true;
+const comm=d=>d.value*d.pct/100;
+const fmtDate=s=>new Date(s+'T12:00').toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'});
+const fmtTime=t=>{if(!t)return'';const[h,m]=t.split(':');return(h%12||12)+':'+m+(h<12?' AM':' PM')};
+function dueLabel(t){const d=today();let s;if(t.due===d)s='Today';else if(t.due===addD(1))s='Tomorrow';else if(t.due<d){const n=Math.round((new Date(d)-new Date(t.due))/864e5);s=n+'d overdue'}else s=fmtDate(t.due);return s+(t.time?' at '+fmtTime(t.time):'')}
+function log(type,text){S.activity.unshift({id:uid(),ts:Date.now(),type,text});S.activity=S.activity.slice(0,400)}
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2200)}
+function sheet(h){const s=$('#sheet');s.innerHTML='<button class="back" data-a="closeSheet">&lsaquo; Back</button>'+h;s.scrollTop=0;document.body.classList.add('open')}
+function closeSheet(){document.body.classList.remove('open')}
+const val=id=>($('#'+id)?.value||'').trim();
+const opts=(arr,sel)=>arr.map(a=>`<option ${a===sel?'selected':''}>${esc(a)}</option>`).join('');
+const clientOpts=sel=>'<option value="">No client</option>'+S.clients.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.name)}</option>`).join('');
+const empty=(t,s)=>`<div class="empty"><b>${t}</b>${s}</div>`;
+
+/* ===== views ===== */
+const ICONS={today:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',clients:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',deals:'<path d="M3 11l9-8 9 8v10H3z"/><path d="M9 21v-6h6v6"/>',tasks:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'};
+$('#tabs').innerHTML=Object.keys(ICONS).map(k=>`<button class="tab" data-a="tab" data-id="${k}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${k[0].toUpperCase()+k.slice(1)}</button>`).join('');
+
+const taskRow=t=>{const c=cl(t.clientId),od=!t.done&&t.due<today();
+ return `<div class="row"><button class="chk ${t.done?'on':''}" data-a="complete" data-id="${t.id}" aria-label="Complete task"></button><div class="grow" data-a="taskMenu" data-id="${t.id}"><b>${esc(t.title)}</b><small class="${od?'red':''}">${c?esc(c.name)+', ':''}${dueLabel(t)}</small></div><span class="tag ${t.type}">${{followup:'Follow-up',appt:'Appt',task:'Task'}[t.type]}</span></div>`};
+const list=(arr,fn,e)=>arr.length?`<div class="card">${arr.map(fn).join('')}</div>`:e;
+const open=()=>S.tasks.filter(t=>!t.done);
+const byTime=(a,b)=>(a.due+a.time).localeCompare(b.due+b.time);
+
+const V={
+today(){
+ const d=today(),h=new Date().getHours(),g=h<12?'Good morning':h<18?'Good afternoon':'Good evening';
+ const od=open().filter(t=>t.due<d).sort(byTime),td=open().filter(t=>t.due===d).sort((a,b)=>(a.type==='appt'?0:1)-(b.type==='appt'?0:1)||byTime(a,b));
+ const dls=S.deals.filter(x=>x.stage!=='Closed').flatMap(x=>x.deadlines.map(l=>({...l,deal:x}))).filter(l=>l.date<=addD(7)).sort((a,b)=>a.date.localeCompare(b.date));
+ return `<div class="top"><div><p class="sub" style="margin:0">${new Date().toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'})}</p><h1>${g}, ${esc(S.name)}</h1></div><button class="ico" data-a="push" data-id="activity" aria-label="History">&#9201;</button></div>
+ <div class="stat" style="margin-top:12px"><div class="card"><b class="${od.length?'red':''}">${od.length}</b><small>Overdue</small></div><div class="card"><b>${td.length}</b><small>Due today</small></div><div class="card"><b>${dls.length}</b><small>Deal deadlines</small></div></div>
+ ${S.clients.length&&(!S.lastBackup||Date.now()-S.lastBackup>12096e5)?`<div class="card pad" style="margin-top:12px"><b>Back up your data</b><p class="sub" style="margin:2px 0 10px">Your data lives on this phone only.</p><button class="btn sec" data-a="exportData">Download backup</button></div>`:''}
+ ${od.length?`<h2>Overdue</h2>`+list(od,taskRow):''}
+ <h2>Today</h2>${list(td,taskRow,`<div class="card">${empty('Nothing due today','Tap + to add a task or log a call.')}</div>`)}
+ <h2>Deal deadlines, next 7 days</h2>${list(dls,l=>`<div class="row" data-a="push" data-id="deal:${l.deal.id}"><div class="grow"><b>${esc(l.label)}</b><small class="${l.date<d?'red':''}">${esc(cl(l.deal.clientId)?.name||'')}, ${l.date<d?'was ':''}${fmtDate(l.date)}</small></div><span class="tag">${l.deal.stage}</span></div>`,`<div class="card">${empty('No deadlines this week','Deadlines you add to deals appear here.')}</div>`)}`},
+
+clients(){
+ const q=nav.q.toLowerCase();
+ const arr=S.clients.filter(c=>(nav.cf==='All'||c.stage===nav.cf)&&(!q||(c.name+c.email+c.phone).toLowerCase().includes(q))).sort((a,b)=>(a.next||'9').localeCompare(b.next||'9'));
+ return `<div class="top"><h1>Clients</h1><button class="ico" data-a="newClient" aria-label="Add client">+</button></div>
+ <p class="sub">${S.clients.length} total${isPro()?'':' of '+LIMITS.clients+' on Free'}</p>
+ <input id="q" type="search" placeholder="Search clients" value="${esc(nav.q)}" data-a="noop">
+ <div class="pills">${['All',...CSTAGES].map(s=>`<button class="pill ${nav.cf===s?'on':''}" data-a="cf" data-id="${s}">${s}</button>`).join('')}</div>
+ <div id="clist">${list(arr,c=>`<div class="row" data-a="push" data-id="client:${c.id}"><div class="av">${ini(c.name)}</div><div class="grow"><b>${esc(c.name)}</b><small class="${c.next&&c.next<today()?'red':''}">${c.stage}${c.next?', next '+fmtDate(c.next):''}</small></div></div>`,`<div class="card">${empty('No clients found','Try another filter or add a new client.')}</div>`)}</div>`},
+
+client(id){const c=cl(id);if(!c)return back();
+ const tk=S.tasks.filter(t=>t.clientId===id&&!t.done).sort(byTime),ds=S.deals.filter(d=>d.clientId===id);
+ return `<button class="back" data-a="pop">&lsaquo; Clients</button>
+ <div class="top"><div><h1 style="font-size:30px">${esc(c.name)}</h1><span class="tag">${c.stage}</span></div><button class="ico" data-a="editClient" data-id="${id}" aria-label="Edit">&#9998;</button></div>
+ <div class="acts"><a href="tel:${esc(c.phone)}">Call</a><a href="sms:${esc(c.phone)}">Message</a><a href="mailto:${esc(c.email)}">Email</a></div>
+ <button class="btn" data-a="openLog" data-id="${id}">Log a call</button>
+ <h2>Details</h2><div class="card pad">${[['Type',c.type],['Budget',c.budget],['Preferences',c.prefs],['Phone',c.phone],['Email',c.email],['Next follow-up',c.next?fmtDate(c.next):'Not scheduled'],['Notes',c.notes]].map(([k,v])=>`<small>${k}</small><div style="margin-bottom:10px">${esc(v)||'<span style="color:#aaa">None</span>'}</div>`).join('')}</div>
+ <h2>Open tasks</h2>${list(tk,taskRow,`<div class="card">${empty('No open tasks','Schedule a follow-up so this client is not forgotten.')}</div>`)}
+ <h2>Deals</h2>${list(ds,d=>dealRow(d),`<div class="card">${empty('No deals yet','')}</div>`)}
+ <h2>Communication history</h2>${list(c.history,h=>`<div class="row"><div class="grow"><b>${esc(h.outcome)}</b><small>${new Date(h.ts).toLocaleDateString('en-CA',{month:'short',day:'numeric'})}${h.note?', '+esc(h.note):''}</small></div></div>`,`<div class="card">${empty('No history yet','Log a call to start the record.')}</div>`)}
+ <div style="margin-top:22px"><button class="btn ghost" data-a="delClient" data-id="${id}">Delete client</button></div>`},
+
+deals(){
+ const act=S.deals.filter(d=>d.stage!=='Closed'),arr=S.deals.filter(d=>nav.df==='Active'?d.stage!=='Closed':d.stage===nav.df);
+ return `<div class="top"><h1>Deals</h1><button class="ico" data-a="newDeal" aria-label="Start deal">+</button></div>
+ <div class="stat" style="margin-top:8px"><div class="card"><small>Pipeline value</small><b>${money(act.reduce((s,d)=>s+d.value,0))}</b></div><div class="card"><small>Expected commission</small><b>${money(act.reduce((s,d)=>s+comm(d),0))}</b></div></div>
+ <p class="sub" style="margin-top:10px">${act.length} active${isPro()?'':' of '+LIMITS.deals+' on Free'}</p>
+ <div class="pills">${['Active',...DSTAGES].map(s=>`<button class="pill ${nav.df===s?'on':''}" data-a="df" data-id="${s}">${s} ${s==='Active'?act.length:S.deals.filter(d=>d.stage===s).length}</button>`).join('')}</div>
+ ${list(arr.sort((a,b)=>DSTAGES.indexOf(b.stage)-DSTAGES.indexOf(a.stage)),dealRow,`<div class="card">${empty('No deals here','Start a deal to track it to closing.')}</div>`)}`},
+
+deal(id){const d=deal(id);if(!d)return back();const c=cl(d.clientId),tk=S.tasks.filter(t=>t.dealId===id&&!t.done).sort(byTime);
+ return `<button class="back" data-a="pop">&lsaquo; Deals</button>
+ <div class="top"><div><h1 style="font-size:28px">${esc(d.address)}</h1><p class="sub">${c?esc(c.name):'No client'}</p></div><button class="ico" data-a="delDeal" data-id="${id}" aria-label="Delete deal">&#128465;</button></div>
+ <div class="stat"><div class="card"><small>Value</small><b>${money(d.value)}</b></div><div class="card"><small>Commission</small><b>${money(comm(d))}</b></div></div>
+ <h2>Stage</h2><div class="stages">${DSTAGES.map(s=>`<button class="pill ${d.stage===s?'on':''}" data-a="stage" data-id="${id}|${s}">${s}</button>`).join('')}</div>
+ <h2>Closing</h2><div class="card pad">${d.close?fmtDate(d.close):'No date set'}</div>
+ <h2>Deadlines</h2>${list(d.deadlines.sort((a,b)=>a.date.localeCompare(b.date)),l=>`<div class="row"><div class="grow"><b>${esc(l.label)}</b><small class="${l.date<today()?'red':''}">${fmtDate(l.date)}</small></div><button class="ico" data-a="delDL" data-id="${id}|${l.id}" aria-label="Remove">&times;</button></div>`,`<div class="card">${empty('No deadlines','Add conditions and key dates.')}</div>`)}
+ <div style="margin-top:10px"><button class="btn sec" data-a="addDL" data-id="${id}">Add deadline</button></div>
+ <h2>Tasks</h2>${list(tk,taskRow,`<div class="card">${empty('No tasks for this deal','')}</div>`)}
+ <div style="margin-top:10px"><button class="btn sec" data-a="newTask" data-id="${id}">Add task</button></div>
+ <h2>Notes</h2><div class="card pad"><textarea id="dn" rows="3" placeholder="Notes">${esc(d.notes)}</textarea><div style="margin-top:10px"><button class="btn sec" data-a="saveNote" data-id="${id}">Save notes</button></div></div>`},
+
+tasks(){
+ const d=today(),all=open(),F={overdue:all.filter(t=>t.due<d),today:all.filter(t=>t.due===d),upcoming:all.filter(t=>t.due>d),done:S.tasks.filter(t=>t.done)},arr=F[nav.tf].sort(nav.tf==='done'?(a,b)=>(b.doneAt||0)-(a.doneAt||0):byTime);
+ const msg={overdue:['Nothing overdue','You are on top of it.'],today:['Clear for today','Enjoy it, or get ahead.'],upcoming:['Nothing upcoming','Schedule a follow-up from a client.'],done:['Nothing completed yet','Completed items show here.']}[nav.tf];
+ return `<div class="top"><h1>Tasks</h1><button class="ico" data-a="newTask" aria-label="New task">+</button></div><p class="sub">Tasks and follow-ups in one list</p>
+ <div class="seg">${['overdue','today','upcoming','done'].map(k=>`<button class="${nav.tf===k?'on':''}" data-a="tf" data-id="${k}">${k[0].toUpperCase()+k.slice(1)}${k!=='done'?' '+F[k].length:''}</button>`).join('')}</div>
+ ${list(arr,taskRow,`<div class="card">${empty(msg[0],msg[1])}</div>`)}`},
+
+settings(){const p=isPro();
+ return `<h1>Settings</h1><h2>Profile</h2><div class="card pad"><label style="margin:0">First name</label><input id="nm" value="${esc(S.name)}" enterkeyhint="done" data-a="noop"><div style="margin-top:10px"><button class="btn sec" data-a="saveName">Save</button></div></div>
+ <h2>Data</h2><div class="card"><div class="row" data-a="push" data-id="activity"><div class="grow"><b>Activity history</b><small>Calls, updates and deal changes</small></div></div><div class="row" data-a="exportData"><div class="grow"><b>Export backup</b><small>${S.lastBackup?'Last backup '+new Date(S.lastBackup).toLocaleDateString('en-CA',{month:'short',day:'numeric'}):'No backup yet'}</small></div></div><div class="row" data-a="pickRestore"><div class="grow"><b>Restore from backup</b><small>Choose a backup file from this device</small></div></div><div class="row" data-a="restoreSample"><div class="grow"><b>Restore sample data</b><small>Adds the demo clients, deals and tasks back</small></div></div><div class="row" data-a="deleteSample"><div class="grow"><b>Delete sample data</b><small>Removes demo items, keeps your own</small></div></div><div class="row" data-a="clearAll"><div class="grow"><b class="red">Clear all data</b><small>Permanently deletes everything</small></div></div></div>
+ <p class="sub" style="margin-top:18px;text-align:center;font-size:13px">AgentOS 1.0. Data is stored on this device only.</p>`},
+
+activity(){const since=nav.af==='today'?new Date().setHours(0,0,0,0):Date.now()-7*864e5,arr=S.activity.filter(a=>a.ts>=since);
+ const done=arr.filter(a=>a.type==='call').length;
+ return `<button class="back" data-a="pop">&lsaquo; Back</button><h1>Activity</h1><p class="sub">${arr.length} updates, ${done} calls</p>
+ <div class="seg">${[['today','Today'],['week','This week']].map(([k,l])=>`<button class="${nav.af===k?'on':''}" data-a="af" data-id="${k}">${l}</button>`).join('')}</div>
+ ${list(arr,a=>`<div class="row"><div class="grow"><b style="white-space:normal">${esc(a.text)}</b><small>${new Date(a.ts).toLocaleString('en-CA',{weekday:'short',hour:'numeric',minute:'2-digit'})}</small></div><span class="tag ${a.type==='deal'?'appt':a.type==='task'?'task':''}">${a.type}</span></div>`,`<div class="card">${empty('No activity yet','Complete a task or log a call to see it here.')}</div>`)}`}
+};
+function dealRow(d){const c=cl(d.clientId),n=d.deadlines.filter(l=>l.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
+ return `<div class="row" data-a="push" data-id="deal:${d.id}"><div class="grow"><b>${esc(d.address)}</b><small>${c?esc(c.name)+', ':''}${money(d.value)}${n?', '+esc(n.label)+' '+fmtDate(n.date):''}</small></div><span class="tag">${d.stage}</span></div>`}
+
+/* ===== render & navigation ===== */
+function render(){const top=nav.stack[nav.stack.length-1];
+ $('#main').innerHTML=top?V[top.v](top.id):V[nav.tab]();
+ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.id===nav.tab));
+ $('#fab').style.display=(!top&&nav.tab==='today')?'block':'none'}
+function go(){render();$('#main').scrollTop=0}
+function back(){nav.stack.pop();go()}
+
+/* ===== actions ===== */
+const A={
+noop(){},
+tab(id){nav.tab=id;nav.stack=[];go()},
+push(id){const[v,i]=id.split(':');nav.stack.push({v,id:i});go()},
+pop:back,closeSheet,
+cf(id){nav.cf=id;render()},df(id){nav.df=id;render()},tf(id){nav.tf=id;render()},af(id){nav.af=id;render()},
+quick(){sheet(`<h1 style="font-size:24px;margin:0 0 10px">Quick actions</h1><div class="card">${[['newTask','New task'],['newClient','Add client'],['openLog','Log a call'],['newDeal','Start a deal']].map(([a,l])=>`<div class="row" data-a="${a}"><div class="grow"><b>${l}</b></div></div>`).join('')}</div>`)},
+
+/* clients */
+newClient(){clientForm()},
+editClient(id){clientForm(cl(id))},
+saveClient(id){const n=val('c_n');$('#e_n').textContent='';if(!n){$('#e_n').textContent='Enter a name.';return}
+ const em=val('c_e');if(em&&!/^\S+@\S+\.\S+$/.test(em)){$('#e_n').textContent='Enter a valid email.';return}
+ const o={name:n,phone:val('c_p'),email:em,type:val('c_t'),stage:val('c_s'),budget:val('c_b'),prefs:val('c_pr'),notes:val('c_no')};
+ if(id){Object.assign(cl(id),o);toast('Client saved')}else{const c={id:uid(),next:addD(1),history:[],...o};S.clients.push(c);S.tasks.push({id:uid(),title:'Intro follow-up',clientId:c.id,dealId:null,due:addD(1),time:'',type:'followup',done:false,repeat:''});log('client','Added '+n);toast('Client added')}
+ save();closeSheet();render()},
+delClient(id){const c=cl(id);sheet(`<h1 style="font-size:22px">Delete ${esc(c.name)}?</h1><p class="sub">Their tasks and deals are removed too. This cannot be undone.</p><button class="btn ghost" data-a="doDelClient" data-id="${id}">Delete client</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)},
+doDelClient(id){S.clients=S.clients.filter(c=>c.id!==id);S.tasks=S.tasks.filter(t=>t.clientId!==id);S.deals=S.deals.filter(d=>d.clientId!==id);save();closeSheet();nav.stack=[];toast('Client deleted');go()},
+
+/* tasks */
+newTask(id,el){const dealId=el&&el.dataset.a==='newTask'&&id?id:'';taskForm(dealId)},
+saveTask(id){const t=val('t_t');$('#e_t').textContent='';if(!t){$('#e_t').textContent='Enter a task name.';return}
+ const rep=val('t_r');
+ const dealId=id||null,c=val('t_c');S.tasks.push({id:uid(),title:t,clientId:c||(dealId?deal(dealId).clientId:null),dealId,due:val('t_d')||today(),time:val('t_tm'),type:val('t_ty'),done:false,repeat:rep});
+ save();closeSheet();toast('Task added');render()},
+complete(id){const t=task(id);if(t.done){t.done=false;save();return render()}
+ if(t.type==='followup'&&t.clientId)return openLog(t.clientId,id);
+ finish(t);toast('Done');render()},
+taskMenu(id){const t=task(id);sheet(`<h1 style="font-size:22px;margin:0">${esc(t.title)}</h1><p class="sub">${dueLabel(t)}</p><div class="card">${[['complete','Complete'],['snooze:1','Postpone to tomorrow'],['snooze:7','Postpone one week'],['pick','Pick a new date']].map(([a,l])=>`<div class="row" data-a="${a.split(':')[0]}" data-id="${a.includes(':')?id+'|'+a.split(':')[1]:id}"><div class="grow"><b>${l}</b></div></div>`).join('')}<div class="row" data-a="delTask" data-id="${id}"><div class="grow"><b class="red">Delete</b></div></div></div>`)},
+snooze(id){const[i,n]=id.split('|');const t=task(i);t.due=addD(+n);save();closeSheet();toast('Moved to '+fmtDate(t.due));render()},
+pick(id){sheet(`<h1 style="font-size:22px;margin:0">New date</h1><label>Date</label><input id="pd" type="date" value="${addD(1)}"><div style="height:14px"></div><button class="btn" data-a="doPick" data-id="${id}">Reschedule</button>`)},
+doPick(id){const d=val('pd');if(!d)return toast('Choose a date');task(id).due=d;save();closeSheet();toast('Rescheduled');render()},
+delTask(id){S.tasks=S.tasks.filter(t=>t.id!==id);save();closeSheet();toast('Task deleted');render()},
+
+/* call log */
+openLog(id,el){openLog(id&&!el?id:(typeof id==='string'&&el&&el.dataset.a==='openLog'?id:''),null)},
+outcome(id,el){LOG.o=id;document.querySelectorAll('[data-a=outcome]').forEach(b=>b.classList.toggle('on',b===el))},
+nextfu(id,el){LOG.n=id;document.querySelectorAll('[data-a=nextfu]').forEach(b=>b.classList.toggle('on',b===el));$('#l_d').value=id==='none'?'':addD(+id)},
+saveLog(){const c=cl(val('l_c'));$('#e_l').textContent='';if(!c){$('#e_l').textContent='Choose a client.';return}
+ const note=val('l_n'),nd=val('l_d');c.history.unshift({ts:Date.now(),outcome:LOG.o,note});log('call',`Called ${c.name}: ${LOG.o}`);
+ if(LOG.tid){const t=task(LOG.tid);if(t)finish(t,true)}
+ if(nd){S.tasks.push({id:uid(),title:'Follow up with '+c.name.split(' ')[0],clientId:c.id,dealId:null,due:nd,time:'',type:'followup',done:false,repeat:''});c.next=nd}else{c.next=''}
+ save();closeSheet();toast(nd?'Logged. Next follow-up '+fmtDate(nd):'Call logged');render()},
+
+/* deals */
+newDeal(){if(!S.clients.length){closeSheet();return toast('Add a client first')}
+ sheet(`<h1 style="font-size:24px;margin:0">Start a deal</h1><label>Client</label><select id="d_c">${S.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select>
+ <label>Property address</label><input id="d_a" placeholder="123 Main St"><div class="err" id="e_d"></div>
+ <label>Estimated value (CAD)</label><input id="d_v" type="number" inputmode="numeric" placeholder="800000">
+ <label>Commission %</label><input id="d_p" type="number" inputmode="decimal" value="2.5" step="0.05">
+ <label>Expected closing date</label><input id="d_cl" type="date"><label>Stage</label><select id="d_s">${opts(DSTAGES.slice(0,6),'Lead')}</select>
+ <div style="height:16px"></div><button class="btn" data-a="saveDeal">Start deal</button>`)},
+saveDeal(){const a=val('d_a'),v=+val('d_v');$('#e_d').textContent='';if(!a){$('#e_d').textContent='Enter the property address.';return}
+ if(!(v>0)){$('#e_d').textContent='Enter an estimated value.';return}
+ const d={id:uid(),clientId:val('d_c'),address:a,value:v,pct:+val('d_p')||2.5,close:val('d_cl'),stage:val('d_s'),notes:'',deadlines:[]};S.deals.push(d);log('deal',`Started deal: ${a}`);save();closeSheet();toast('Deal started');render()},
+stage(id){const[i,s]=id.split('|'),d=deal(i);if(d.stage===s)return;d.stage=s;log('deal',`${cl(d.clientId)?.name||'Deal'} moved to ${s}`);
+ if(s==='Closed'){const c=cl(d.clientId);if(c)c.stage='Closed'}save();toast('Moved to '+s);render()},
+addDL(id){sheet(`<h1 style="font-size:24px;margin:0">Add deadline</h1><label>What is due</label><input id="x_l" placeholder="Financing condition"><div class="err" id="e_x"></div><label>Date</label><input id="x_d" type="date" value="${addD(3)}"><div style="height:16px"></div><button class="btn" data-a="saveDL" data-id="${id}">Add deadline</button>`)},
+saveDL(id){const l=val('x_l'),d=val('x_d');if(!l){$('#e_x').textContent='Enter a label.';return}if(!d){$('#e_x').textContent='Choose a date.';return}
+ deal(id).deadlines.push({id:uid(),label:l,date:d});log('deal','Deadline added: '+l);save();closeSheet();toast('Deadline added');render()},
+delDL(id){const[i,l]=id.split('|'),d=deal(i);d.deadlines=d.deadlines.filter(x=>x.id!==l);save();render()},
+saveNote(id){deal(id).notes=$('#dn').value;save();toast('Notes saved')},
+delDeal(id){sheet(`<h1 style="font-size:22px">Delete this deal?</h1><p class="sub">Its tasks are removed. This cannot be undone.</p><button class="btn ghost" data-a="doDelDeal" data-id="${id}">Delete deal</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)},
+doDelDeal(id){S.deals=S.deals.filter(d=>d.id!==id);S.tasks=S.tasks.filter(t=>t.dealId!==id);save();closeSheet();toast('Deal deleted');back()},
+
+/* settings & plans */
+saveName(){const n=val('nm');if(!n)return toast('Enter a name');S.name=n;save();toast('Saved');render()},
+exportData(){try{S.lastBackup=Date.now();const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='agentos-backup-'+today()+'.json';document.body.appendChild(a);a.click();a.remove();save();toast('Backup downloaded');render()}catch(e){toast('Backup failed. Try again.')}},
+pickRestore(){$('#rf').click()},
+restoreSample(){if(S.clients.some(c=>c.sample))return toast('Sample data is already loaded');const f=seed();S.clients.push(...f.clients);S.deals.push(...f.deals);S.tasks.push(...f.tasks);S.activity.push(...f.activity);save();toast('Sample data restored');render()},
+deleteSample(){const n=S.clients.filter(c=>c.sample).length;if(!n)return toast('No sample data to delete');sheet(`<h1 style="font-size:22px;margin:0">Delete sample data?</h1><p class="sub">Removes the ${n} demo clients and their deals and tasks. Anything you added for other clients stays.</p><button class="btn ghost" data-a="doDeleteSample">Delete sample data</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)},
+doDeleteSample(){const cid=new Set(S.clients.filter(c=>c.sample).map(c=>c.id));S.deals=S.deals.filter(d=>!d.sample&&!cid.has(d.clientId));const did=new Set(S.deals.map(d=>d.id));S.tasks=S.tasks.filter(t=>!t.sample&&!cid.has(t.clientId)&&!(t.dealId&&!did.has(t.dealId)));S.clients=S.clients.filter(c=>!c.sample);S.activity=S.activity.filter(a=>!a.sample);save();closeSheet();nav.stack=[];toast('Sample data deleted');go()},
+doRestore(){const o=PENDING;if(!o)return;S={plan:S.plan,name:o.name||S.name,clients:o.clients.map(c=>({history:[],...c})),deals:o.deals.map(d=>({deadlines:[],...d})),tasks:o.tasks,activity:Array.isArray(o.activity)?o.activity:[],lastBackup:o.lastBackup||0};PENDING=null;save();closeSheet();nav.stack=[];toast('Backup restored');go()},
+clearAll(){sheet(`<h1 style="font-size:22px;margin:0">Clear all data?</h1><p class="sub">This permanently deletes ${S.clients.length} clients, ${S.deals.length} deals, ${S.tasks.length} tasks and your history from this phone. It cannot be undone.</p><button class="btn sec" data-a="exportData">Download a backup first</button><label>Type DELETE to confirm</label><input id="cl_t" autocapitalize="characters" autocomplete="off"><div class="err" id="e_cl"></div><div style="height:12px"></div><button class="btn ghost" data-a="doClear">Delete everything</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)},
+doClear(){if(val('cl_t').toUpperCase()!=='DELETE'){$('#e_cl').textContent='Type DELETE to confirm.';return}S={plan:S.plan,name:S.name,clients:[],deals:[],tasks:[],activity:[],lastBackup:S.lastBackup};save();closeSheet();nav.stack=[];toast('All data cleared');go()},
+reset(){sheet(`<h1 style="font-size:22px">Reset to sample data?</h1><p class="sub">All your current data will be replaced.</p><button class="btn ghost" data-a="doReset">Reset data</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)},
+doReset(){S=seed();save();closeSheet();nav.stack=[];toast('Sample data restored');go()}
+};
+
+/* ===== helpers using forms ===== */
+let LOG={o:'Connected',n:'7',tid:null};
+function finish(t,quiet){t.done=true;t.doneAt=Date.now();if(!quiet)log('task','Completed: '+t.title);
+ if(t.repeat){const n=t.repeat==='daily'?1:t.repeat==='weekly'?7:30;S.tasks.push({...t,id:uid(),done:false,doneAt:0,due:addD(n,t.due)})}save()}
+function openLog(cid,tid){LOG={o:'Connected',n:'7',tid:tid||null};
+ const c=cid?cl(cid):null,chips=(a,arr,sel)=>arr.map(([k,l])=>`<button class="pill ${k===sel?'on':''}" data-a="${a}" data-id="${k}">${l}</button>`).join('');
+ sheet(`<h1 style="font-size:24px;margin:0">Log a call</h1><label>Client</label><select id="l_c">${S.clients.map(x=>`<option value="${x.id}" ${c&&x.id===c.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select>
+ <label>Outcome</label><div class="pills" style="flex-wrap:wrap">${chips('outcome',['Connected','Left voicemail','No answer','Not interested'].map(x=>[x,x]),'Connected')}</div>
+ <label>Notes</label><textarea id="l_n" rows="2" placeholder="What did you discuss?"></textarea>
+ <label>Schedule next follow-up</label><div class="pills" style="flex-wrap:wrap">${chips('nextfu',[['2','2 days'],['7','1 week'],['14','2 weeks'],['30','1 month'],['none','None']],'7')}</div>
+ <input id="l_d" type="date" value="${addD(7)}"><div class="err" id="e_l"></div><div style="height:12px"></div><button class="btn" data-a="saveLog">Save call</button>`)}
+function clientForm(c){c=c||{};sheet(`<h1 style="font-size:24px;margin:0">${c.id?'Edit client':'Add client'}</h1>
+ <label>Name</label><input id="c_n" value="${esc(c.name)}" autocomplete="off"><div class="err" id="e_n"></div>
+ <label>Phone</label><input id="c_p" type="tel" value="${esc(c.phone)}"><label>Email</label><input id="c_e" type="email" value="${esc(c.email)}">
+ <label>Buyer or seller</label><select id="c_t">${opts(['Buyer','Seller'],c.type)}</select><label>Stage</label><select id="c_s">${opts(CSTAGES,c.stage||'New Lead')}</select>
+ <label>Budget</label><input id="c_b" value="${esc(c.budget)}" placeholder="$800K"><label>Property preferences</label><input id="c_pr" value="${esc(c.prefs)}">
+ <label>Notes</label><textarea id="c_no" rows="2">${esc(c.notes)}</textarea><div style="height:16px"></div><button class="btn" data-a="saveClient" data-id="${c.id||''}">${c.id?'Save changes':'Add client'}</button>`)}
+function taskForm(dealId){sheet(`<h1 style="font-size:24px;margin:0">New task</h1><label>Title</label><input id="t_t" placeholder="Send listing to buyer"><div class="err" id="e_t"></div>
+ <label>Type</label><select id="t_ty"><option value="task">Task</option><option value="followup">Follow-up</option><option value="appt">Appointment</option></select>
+ <label>Client</label><select id="t_c">${clientOpts(dealId?deal(dealId).clientId:'')}</select><label>Due date</label><input id="t_d" type="date" value="${today()}"><label>Time (optional)</label><input id="t_tm" type="time">
+ <label>Repeat</label><select id="t_r"><option value="">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+ <div style="height:16px"></div><button class="btn" data-a="saveTask" data-id="${dealId||''}">Add task</button>`)}
+
+/* ===== events ===== */
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t||t.tagName==='INPUT')return;const f=A[t.dataset.a];if(!f)return;
+ try{ if(t.dataset.a==='openLog')openLog(t.dataset.id||''); else f(t.dataset.id,t,e)}catch(err){console.error(err);toast('Something went wrong')}});
+document.addEventListener('input',e=>{if(e.target.id==='q'){nav.q=e.target.value;const arr=S.clients.filter(c=>(nav.cf==='All'||c.stage===nav.cf)&&(c.name+c.email+c.phone).toLowerCase().includes(nav.q.toLowerCase()));
+ $('#clist').innerHTML=list(arr,c=>`<div class="row" data-a="push" data-id="client:${c.id}"><div class="av">${ini(c.name)}</div><div class="grow"><b>${esc(c.name)}</b><small>${c.stage}</small></div></div>`,`<div class="card">${empty('No clients found','Try another search.')}</div>`)}});
+document.addEventListener('gesturestart',e=>e.preventDefault());
+let PENDING=null;
+$('#rf').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+ const r=new FileReader();r.onerror=()=>toast('Could not read that file');
+ r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||!Array.isArray(o.clients)||!Array.isArray(o.deals)||!Array.isArray(o.tasks))throw 0;PENDING=o;
+  sheet(`<h1 style="font-size:22px;margin:0">Restore this backup?</h1><p class="sub">It contains ${o.clients.length} clients, ${o.deals.length} deals and ${o.tasks.length} tasks. Your current data will be replaced.</p><button class="btn" data-a="doRestore">Restore backup</button><div style="height:10px"></div><button class="btn sec" data-a="closeSheet">Cancel</button>`)}catch(x){toast('That is not a valid AgentOS backup')}};
+ r.readAsText(f)});
+
+/* ===== PWA: inline manifest + generated icon ===== */
+try{const m={name:'AgentOS',short_name:'AgentOS',start_url:'.',display:'standalone',background_color:'#F5F5F2',theme_color:'#F5F5F2'};
+ const cv=document.createElement('canvas');cv.width=cv.height=180;const x=cv.getContext('2d');x.fillStyle='#0B7A75';x.fillRect(0,0,180,180);x.fillStyle='#fff';x.beginPath();x.moveTo(40,98);x.lineTo(90,52);x.lineTo(140,98);x.lineTo(126,98);x.lineTo(126,134);x.lineTo(54,134);x.lineTo(54,98);x.fill();
+ const u=cv.toDataURL('image/png');m.icons=[{src:u,sizes:'180x180',type:'image/png'}];$('#ic').href=u;
+ $('#mf').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));
+ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+render();
+</script>
+</body>
+</html>
